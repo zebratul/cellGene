@@ -23,19 +23,6 @@ createGrid(columns, rows);
 
 //рандомайзер старта
 document.getElementById('1').addEventListener('click', () => {
-    
-    // рандомный окрашиватель, не нужен 
-    // let whiteOut = document.querySelectorAll (`td`);
-    // console.log(whiteOut);
-    // whiteOut.forEach(Element => {
-    //     Element.style.backgroundColor = 'white';
-    // });
-    // let x = Math.floor(Math.random() * 10);
-    // let y = Math.floor(Math.random() * 10);
-    //  let tds = document.querySelector(`td[data-row="${x}"][data-column="${y}"]`);
-    // console.log(tds);
-    // tds.style.backgroundColor = 'red';
-
     let whiteOut = document.querySelectorAll (`td`);
     whiteOut.forEach(Element => {
         Element.style.backgroundColor = 'white';
@@ -92,24 +79,6 @@ const baseCell = {
 
     //размнож:
     reproduce: function (){     
-        // const newCell = Object.create(baseCell); 
-        // newCell.locX = this.locX;
-        // newCell.locY = this.locY;      
-        // newCell.gen = this.gen+1;     
-        // if (this.crowdCheck(newCell) < 4 && this.reproducable === true) { 
-        //     while (allCells.find(obj => obj.locX === newCell.locX && obj.locY === newCell.locY) && i < 4) { //генерим новые координаты пока не попадём на пустые
-        //         i = 0;
-        //         Math.round(Math.random()) * 2 - 1 > 0 ? newCell.locX = this.locX+Math.round(Math.random()) * 2 - 1 : newCell.locY = this.locY+Math.round(Math.random()) * 2 - 1; //отползаем по случайной координате на 1 клетку в случайную сторону 
-        //         i ++;
-        //     }
-        // } else {
-        //     return;
-        // };  
-        // if (newCell.locX != 0 || newCell.locY != 0 || newCell.locX != columns-1 || newCell.locY != rows-1){
-        //     newCell.reproducable = true;
-        // } else {newCell.reproducable = false;};
-        // allCells.push(newCell);
-        // newCell.visual();
         const newCell = Object.create(baseCell);
         if (this.crowdCheck(this) < 3 && this.reproducable === true) {
             newCell.locX = this.locX;
@@ -158,7 +127,6 @@ const baseCell = {
 baseCell.reproduce(); //спавним стартовую
 console.log(allCells);
 
-
 //start or stop time.
 let timeBool = false;
 function time() {
@@ -187,7 +155,6 @@ document.getElementById('2').addEventListener('click', () => { //вызывае�
     console.log(timeBool);
     time();
 });
-
 
 //ручное размножение послежнего элемента
 document.getElementById('3').addEventListener('click', () => {
