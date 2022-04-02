@@ -50,11 +50,11 @@ function getRandomLocation() {
 /* проверяем, не находится ли клетка на границах таблицы */
 function isOnTableEdge(cell, rows, cols) {
     /* проверяем правую и левую границы */
-    if (newCell.locX === 0 || newCell.locX === cols - 1) {
+    if (cell.locX === 0 || cell.locX === cols - 1) {
         return true;
     }
     /* проверяем верхнюю и нижнюю границы */
-    if (newCell.locY === 0 || newCell.locX === rows - 1) {
+    if (cell.locY === 0 || cell.locX === rows - 1) {
         return true;
     }
 
