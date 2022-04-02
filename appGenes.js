@@ -54,7 +54,7 @@ function isOnTableEdge(cell, rows, cols) {
         return true;
     }
     /* проверяем верхнюю и нижнюю границы */
-    if (cell.locY === 0 || cell.locX === rows - 1) {
+    if (cell.locY === 0 || cell.locY === rows - 1) {
         return true;
     }
 
