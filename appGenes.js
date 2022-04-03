@@ -3,7 +3,8 @@
 $('.table').on('click', 'td', function () {
     console.log($(this).attr('data-row'),"= x");
     console.log($(this).attr('data-column'),"= y");
-    })
+});
+
 let columns = 17, rows = 17;
 function createGrid(columns, rows) {
     let table = $('.table');
@@ -40,6 +41,26 @@ document.getElementById('1').addEventListener('click', () => {
 function randomNumber(min, max) {
     return Math.floor(Math.random() * (max - min) + min);
 };
+
+/* возвращает случайное число, представляющее позицию клетки */
+function getRandomLocation() {
+    return Math.round(Math.random()) * 2 - 1
+}
+
+/* проверяем, не находится ли клетка на границах таблицы */
+function isOnTableEdge(cell, rows, cols) {
+    /* проверяем правую и левую границы */
+    if (cell.locX === 0 || cell.locX === cols - 1) {
+        return true;
+    }
+    /* проверяем верхнюю и нижнюю границы */
+    if (cell.locY === 0 || cell.locY === rows - 1) {
+        return true;
+    }
+
+    return false;
+}
+
 //цвета для мутаций
 const colours = [`coral`, `cadetblue`, `darkseagreen`, `plum`, `tan`];
 
@@ -58,7 +79,7 @@ const baseCell = {
                 };
             if (allCells.find(obj => obj.locX === target.locX+1 && obj.locY === target.locY+i)) {
                 acc++;
-                }
+            }
         };
         if (allCells.find(obj => obj.locX === target.locX && obj.locY === target.locY+1)) {
             acc++;
@@ -80,7 +101,7 @@ const baseCell = {
     colour: colours[randomNumber(0, 5)],
 
     //размнож:
-    reproduce: function (){     
+    reproduce: function () {     
         const newCell = Object.create(baseCell);
         if (this.crowdCheck(this) < 3 && this.reproducable === true) {
             newCell.locX = this.locX;
@@ -89,31 +110,55 @@ const baseCell = {
             newCell.dying = false;
             let i = 0;
             while (allCells.find(obj => obj.locX === newCell.locX && obj.locY === newCell.locY) && i < 4) { //генерим новые координаты пока не попадём на пустые
-                Math.round(Math.random()) * 2 - 1 > 0 ? newCell.locX = this.locX+Math.round(Math.random()) * 2 - 1 : newCell.locY = this.locY+Math.round(Math.random()) * 2 - 1; //отползаем по случайной координате на 1 клетку в случайную сторону 
+                //отползаем по случайной координате на 1 клетку в случайную сторону 
+                /* овоч: 
+                    - тернарники это круто, но не в ущерб читаемости кода. с первого раза было трудновато понять, что тут происходит 
+                    - старайся избегать повторений. если у тебя одно и то же выражение используется несколько раз, лучше всегда выносить в отдельную переменную или функцию.
+                */
+                if (getRandomLocation() > 0) {
+                    newCell.locX = this.locX + getRandomLocation();
+                } else {
+                    newCell.locY = this.locY + getRandomLocation();
+                }
                 i++;
             };
         } else {
             return;
         };  
 
-        if (newCell.locX === 0 || newCell.locY === 0 || newCell.locX === columns-1 || newCell.locY === rows-1){
-            newCell.reproducable = false;
-        } else {newCell.reproducable = true;}; //делаем клетки на крайних ячейках неразмножаемыеми чтобы они не лезли за пределы таблицы. Не знаю как сделать нормально. 
+        //делаем клетки на крайних ячейках неразмножаемыеми чтобы они не лезли за пределы таблицы. Не знаю как сделать нормально.
+        /* овоч: выносим проверку в отдельную функцию, которая возвращает булево значение, и затем присваиваем противоположное
+            - обрати внимание, что мы здесь используем оператор "отрицания" для того, чтобы изменить значение на противоположное.
+            - если функция нам вернет true (клетка на краю) - мы изменяем на false и присваиваем. ну и ровно наоборот
+        */
+        newCell.reproducable = !isOnTableEdge(newCell, rows, columns);
             
-        if (randomNumber(1,10) > 8) { 
-            newCell.colour = this.mutate();
-        } else {newCell.colour = this.colour}; //шанс на смену цвета
+        //шанс на смену цвета
+        /* овоч:
+            - магическое число. почему 8?
+            - а вот здесь тернарник будет смотреться уместней и красивей
+        */
+        const mutationChance = randomNumber(1, 10) > 8;
+        newCell.colour = mutationChance ? this.mutate() : this.colour;
+
             
         allCells.push(newCell); //сохраняем в коллекцию живых клеток
         newCell.visual(); //отрисовывем текущий цвет
     },
 
     //мутация, пока что только цвет
-    mutate: function(){
+    mutate: function() {
+        /*
+        овоч: немного странно вообще, слишком переусложнено.
+         - зачем сохранять в переменную текущий цвет, если его все равно не используем?
+         - зачем потом менять значение этой переменной на рандомный цвет и возвращать?
+
         let c = this.colour;
         let r = randomNumber(0, 5);
         c = colours[r];
         return c;
+        */
+        return colours[randomNumber(0, 5)];
     },
 
     //удаление из коллекции живых:
@@ -123,7 +168,9 @@ const baseCell = {
             this.dying = true;
             let tds = document.querySelector(`td[data-row="${this.locX}"][data-column="${this.locY}"]`);
             tds.style.backgroundColor = 'white'; //красим клетку в белый
-            allCells.splice(allCells.findIndex(item => item.dying === true), 1); //удаляем из аррея
+            //удаляем из аррея
+            /* овоч: проверка item.dying === true излишня. коллбек и так вернет по дефолту то значение, которое true */
+            allCells.splice(allCells.findIndex(item => item.dying), 1);
         };
     },
 }
